@@ -209,9 +209,8 @@ class AutoMedic : FilesDeobfuscator
         //populate the options using the commandline arguments passed to de4dot (code based actual on de4dot code).
         de4dot.cui.Program.ParseCommandLine(argumentList.ToArray(), options);
         AutoMedic autoMedic = new AutoMedic(options, filename, filenameBackup, arguments, versionLowRange, versionHighRange);
-        autoMedic._DoPatch();
-
-        //clean up the backup file.
+        if(autoMedic.DoPatch() != 0)
+            File.Delete(filenameBackup);
 
         Console.WriteLine("Press Enter to exit...");
         Console.ReadLine();
@@ -221,7 +220,7 @@ class AutoMedic : FilesDeobfuscator
     ///
     /// </summary>
     /// <param name="filename"></param>
-    void _DoPatch()
+    int DoPatch()
     {
         //print version.
         AutoMedic.version();
@@ -229,7 +228,7 @@ class AutoMedic : FilesDeobfuscator
         if (!CheckFileExists(filename))
         {
             Console.WriteLine("No binaries with matching names found...\n");
-            return;
+            return -1;
         }
 
         if (versionLowRange != null)
@@ -238,7 +237,7 @@ class AutoMedic : FilesDeobfuscator
             if (binaryVersion.CompareTo(new Version(versionLowRange)) < 0)
             {
                 Console.WriteLine("No binaries with matching version found...\n");
-                return;
+                return -1;
             }
         }
 
@@ -248,11 +247,9 @@ class AutoMedic : FilesDeobfuscator
             if (binaryVersion.CompareTo(new Version(versionHighRange)) >= 0)
             {
                 Console.WriteLine("No binaries with matching version found...\n");
-                return;
+                return -1;
             }
         }
-
-
 
         // Print information.
         this.WriteLine("deobfuscating binary...");
@@ -276,7 +273,7 @@ class AutoMedic : FilesDeobfuscator
             //delete backup.
             File.Delete(filenameBackup);
             this.WriteLine("error deobfuscating, aborting file write.");
-            return;
+            return -1;
         }
 
         try
@@ -316,20 +313,21 @@ class AutoMedic : FilesDeobfuscator
 
                 //delete backup.
                 this.module.Dispose();
-                File.Delete(filenameBackup);
-                return;
+                return -1;
             }
         }
-        catch(Exception exception)
+        catch (Exception exception)
         {
             //Some sort of error occurred during patching.
 
             //delete backup.
             this.module.Dispose();
-            File.Delete(filenameBackup);
+
             this.WriteLine("error patching binary, aborting file write.");
             this.WriteLine(exception.Message);
-            return;
+            return -1;
         }
+
+        return 0;
     }
 }
