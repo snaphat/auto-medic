@@ -7,9 +7,9 @@ De4dot based patching toolkit for .net binary modification.
 - `de4dotp.exe` must be in your path.
 
 # Setup
-- Create a patched version of [de4dot](https://github.com/mobile46/de4dot) called `de4dotp.exe` by following the instructions [here](https://github.com/snaphat/de4dot_patcher).
-- Install [Build Tools for Visual Studio](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2022) and add `csc.exe` directory to your path.
-- Install [ILRepack](https://github.com/gluck/il-repack) and add the `ILRepack.exe` directory to your path. I just extract the executable from the [nupkg](http://nuget.org/api/v2/package/ILRepack) directly.
+- Create a patched version of [de4dot](https://github.com/mobile46/de4dot) called `de4dotp.exe` by following the instructions [here](https://github.com/snaphat/de4dot_patcher) and add the directory it is in to your path.
+- Install [Build Tools for Visual Studio](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2022) and add the directory `csc.exe` is in to your path.
+- Install [ILRepack](https://github.com/gluck/il-repack) and add the directory `ILRepack.exe` is in to your path. I just extract the executable from the [nupkg](http://nuget.org/api/v2/package/ILRepack) directly.
 
 # Example
 - `automedic.cs`
