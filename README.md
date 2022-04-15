@@ -2,9 +2,9 @@
 De4dot based patching toolkit for .net binary modification.
 
 # Dependencies
-- `csc.exe` must be in the path. 
-- `ILRepack.exe` must be in the path.
-- `de4dotp.exe` must be in the path.
+- `csc.exe` must be in your path. 
+- `ILRepack.exe` must be in your path.
+- `de4dotp.exe` must be in your path.
 
 # Setup
 - Create a patched version of [de4dot](https://github.com/mobile46/de4dot) called `de4dotp.exe` by following the instructions [here](https://github.com/snaphat/de4dot_patcher).
