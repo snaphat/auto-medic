@@ -1,7 +1,7 @@
 # auto-medic
 De4dot based patching toolkit for .net binary modification.
 
-# Depedencies
+# Dependencies
 - `csc.exe` must be in the path. 
 - `ILRepack.exe` must be in the path.
 - `de4dotp.exe` must be in the path.
