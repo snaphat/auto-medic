@@ -39,4 +39,4 @@ De4dot based patching toolkit for .net binary modification.
   - The checksum is computed by adding all modifier return values.
   - Any .net assembly can be targeted.
 - Make sure to use `ILRepack.exe` to pack `de4dotp.exe` with your executable after compilation. Otherwise, it won't work. See `example/make.bat` for details.
-- In a real world use-cases, one might use [dnSpy](https://github.com/dnSpy/dnSpy) or [.net Reflector](https://www.red-gate.com/products/dotnet-development/reflector/) to reverse-engineer the target .net assembly, and then utilize this toolkit to create and apply patches to the bytecode.
+- In a real world use-cases, one might use [dnSpy](https://github.com/dnSpy/dnSpy) or [.net Reflector](https://www.red-gate.com/products/dotnet-development/reflector/) to reverse-engineer the target .net assembly, and then utilize this toolkit to create and apply patches to the assembly's bytecode.
