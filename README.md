@@ -24,7 +24,7 @@ De4dot based patching toolkit for .net binary modification.
   - Returns `A equal 0!` pre-patch.
   - Should return `A equal 1!` post-patch.
 - `example/make.bat`
-  - Build and run script for example.
+  - Example build and run script.
   - Compiles `a.exe` and `Auto-Medic.exe`.
   - Runs `a.exe` pre-patch.
   - Patches `a.exe` using `Auto-Doc.exe`.
