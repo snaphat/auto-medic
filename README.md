@@ -34,7 +34,8 @@ De4dot based patching toolkit for .net binary modification.
 - Include `automedic.cs` into a project.
 - Adapt `example/auto-medic.cs` for real-world usage.
   - It should be pretty simple in practice.
-  - Checksum is computed by adding Modifier return values. For example, if `fooModifier` were hit twice in the example, 2 would be the resulant checksum.
+  - Each modifier is called for all methods in the assembly.
   - Multiple code patches can be applied via additional calls to `AutoMedic.modifiers.Add()` with different modifiers.
+  - The checksum is computed by adding all modifier return values.
   - Any .net assembly can be targeted.
 - In a real world use case, one might use [dnSpy](https://github.com/dnSpy/dnSpy) or [.net Reflector](https://www.red-gate.com/products/dotnet-development/reflector/) to reverse-engineer the target .net assembly, and then utilize this toolkit to create and apply patches to the bytecode.
