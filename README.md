@@ -38,4 +38,4 @@ De4dot based patching toolkit for .net binary modification.
   - Multiple code patches can be applied via additional calls to `AutoMedic.modifiers.Add()` with different modifiers.
   - The checksum is computed by adding all modifier return values.
   - Any .net assembly can be targeted.
-- In a real world use case, one might use [dnSpy](https://github.com/dnSpy/dnSpy) or [.net Reflector](https://www.red-gate.com/products/dotnet-development/reflector/) to reverse-engineer the target .net assembly, and then utilize this toolkit to create and apply patches to the bytecode.
+- In a real world use-cases, one might use [dnSpy](https://github.com/dnSpy/dnSpy) or [.net Reflector](https://www.red-gate.com/products/dotnet-development/reflector/) to reverse-engineer the target .net assembly, and then utilize this toolkit to create and apply patches to the bytecode.
