@@ -21,7 +21,6 @@ class AutoMedic : FilesDeobfuscator
     public static int correctChecksum = -1;
 
     public static bool bPrintedVersion = false;
-    public static bool bBinaryFound = false;
 
     public delegate int closure(ModuleDef module, MethodDef method);
 
@@ -58,7 +57,7 @@ class AutoMedic : FilesDeobfuscator
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.Write("Medic");
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.Write(" V4.5 ");
+            Console.Write(" v4.6 ");
             Console.ForegroundColor = ConsoleColor.White;
             Console.Write("====");
             Console.ForegroundColor = ConsoleColor.Red;
@@ -187,9 +186,13 @@ class AutoMedic : FilesDeobfuscator
         AutoMedic.version();
 
         if (!CheckFileExists(filename))
+        {
+            Console.WriteLine("No binaries with matching names found...");
+            Console.WriteLine();
+            Console.WriteLine("Press Enter to exit...");
+            Console.ReadLine();
             return;
-        else
-            bBinaryFound = true;
+        }
 
         if (versionLowRange != null)
         {
