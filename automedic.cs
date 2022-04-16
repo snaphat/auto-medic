@@ -44,20 +44,19 @@ class AutoMedic : FilesDeobfuscator
     static T Try<T>(Func<T> func) { try { return func(); } catch { return default(T); } }
     static bool Always(Action action) { action(); return true; }
 
-    /// <summary>
-    /// Override the base method to add our own functionality.
-    /// </summary>
+    static void Write(ConsoleColor color, String txt)
+    {
+        Console.ForegroundColor = color;
+        Console.Write(txt);
+        Console.ResetColor();
+    }
+
     static void WriteLine(dynamic prefix, dynamic suffix)
     {
-        Console.ForegroundColor = ConsoleColor.Cyan;
-        Console.Write(prefix + ": ");
-        Console.ResetColor();
+        Write(ConsoleColor.Cyan, prefix + ": ");
         Console.WriteLine(suffix);
     }
 
-    /// <summary>
-    /// Override the base method to add our own functionality.
-    /// </summary>
     void WriteLine(dynamic suffix)
     {
         WriteLine(this.filename, suffix);
@@ -70,43 +69,22 @@ class AutoMedic : FilesDeobfuscator
     {
         if(bPrintedVersion == false)
         {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write("======");
+            Write(ConsoleColor.Red, "======");
+            Write(ConsoleColor.White, "=====================");
+            Write(ConsoleColor.Red, "======\n");
 
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write("=====================");
+            Write(ConsoleColor.Red, "====");
+            Write(ConsoleColor.White, "====");
+            Write(ConsoleColor.Cyan, " Auto");
+            Write(ConsoleColor.Red, "-");
+            Write(ConsoleColor.Cyan, "Medic");
+            Write(ConsoleColor.Yellow, " v4.6 ");
+            Write(ConsoleColor.White, "====");
+            Write(ConsoleColor.Red, "====\n");
 
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("======");
-
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write("====");
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write("====");
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.Write(" Auto");
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write("-");
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.Write("Medic");
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.Write(" v4.6 ");
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write("====");
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("====");
-
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write("======");
-
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write("=====================");
-
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("======");
-
-            Console.WriteLine();
-            Console.ResetColor();
+            Write(ConsoleColor.Red, "======");
+            Write(ConsoleColor.White, "=====================");
+            Write(ConsoleColor.Red, "======\n");
         }
 
         bPrintedVersion = true;
@@ -199,10 +177,6 @@ class AutoMedic : FilesDeobfuscator
         Console.ReadLine();
     }
 
-    /// <summary>
-    ///
-    /// </summary>
-    /// <param name="filename"></param>
     int DoPatch()
     {
         int checksum = 0;
