@@ -19,13 +19,9 @@ class AutoMedic : FilesDeobfuscator
 {
     public ModuleDefMD module;
     public static int correctChecksum = -1;
-
     public static bool bPrintedVersion = false;
-
     public delegate int closure(ModuleDef module, MethodDef method);
-
     public static List<closure> modifiers = new List<closure>();
-
     string filename;
     string filenameBackup;
     string[] arguments;
@@ -68,8 +64,7 @@ class AutoMedic : FilesDeobfuscator
     /// </summary>
     static void version()
     {
-        if(bPrintedVersion == false)
-        {
+        if(bPrintedVersion == false) {
             Write(ConsoleColor.Red, "======");
             Write(ConsoleColor.White, "=====================");
             Write(ConsoleColor.Red, "======\n");
@@ -100,8 +95,7 @@ class AutoMedic : FilesDeobfuscator
     void deobfuscate()
     {
         var stdOut = Console.Out;
-        try
-        {
+        try {
             Console.SetOut(new StringWriter());                                         //redirect stdout to nothing.
             List<IObfuscatedFile> allFiles = new List<IObfuscatedFile>(LoadAllFiles()); //Load the files.
             DeobfuscateAllFiles(allFiles);                                              //Deobfuscate the files.
@@ -135,16 +129,14 @@ class AutoMedic : FilesDeobfuscator
         //check the versions of the assembly to see if the one we are going to patch is newer.
         Version newVersion = AssemblyName.GetAssemblyName(from).Version;
         Version oldVersion = Try(()=>AssemblyName.GetAssemblyName(to).Version); // Implicitly null if doesn't exist.
-        string ret = (newVersion == oldVersion) switch
-        {
+        string ret = (newVersion == oldVersion) switch {
             true                                   => "backup binary exists already, aborting file write.",
             _ when !Try(() => File.Delete(to))     => "failed to remove stale backup binary, aborting execution.",
             _ when !Try(() => File.Copy(from, to)) => "failed to create backup binary, aborting execution.",
             _ => null
         };
 
-        return ret switch
-        {
+        return ret switch {
             null => 0,
             _ when Always(() => WriteLine(from, ret))  => -1
         };
