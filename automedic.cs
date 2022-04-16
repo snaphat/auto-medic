@@ -25,21 +25,22 @@ class AutoMedic : FilesDeobfuscator
     string filename;
     string filenameBackup;
     string[] arguments;
-    string versionLowRange;
-    string versionHighRange;
-    AutoMedic(FilesDeobfuscator.Options options, string filename, string filenameBackup, string[] arguments, string versionLowRange, string versionHighRange) : base(options)
-    {
-        this.filename = filename;
-        this.filenameBackup = filenameBackup;
-        this.arguments = arguments;
-        this.versionLowRange = versionLowRange;
-        this.versionHighRange = versionHighRange;
-    }
+    string verLow;
+    string verHigh;
 
     static bool Try(Action action) { try { action(); return true; } catch { return false; } }
     static T Try<T>(Func<T> func) { try { return func(); } catch { return default(T); } }
     static bool Always(Action action) { action(); return true; }
     static bool Never(Action action) { action(); return false; }
+
+    AutoMedic(FilesDeobfuscator.Options options, string filename, string filenameBackup, string[] arguments, string verLow, string verHigh) : base(options)
+    {
+        this.filename       = filename;
+        this.filenameBackup = filenameBackup;
+        this.arguments      = arguments;
+        this.verLow         = verLow;
+        this.verHigh        = verHigh;
+    }
 
     static void Write(ConsoleColor color, String txt)
     {
@@ -74,7 +75,7 @@ class AutoMedic : FilesDeobfuscator
             Write(ConsoleColor.Cyan, " Auto");
             Write(ConsoleColor.Red, "-");
             Write(ConsoleColor.Cyan, "Medic");
-            Write(ConsoleColor.Yellow, " v4.6 ");
+            Write(ConsoleColor.Yellow, " v4.7 ");
             Write(ConsoleColor.White, "====");
             Write(ConsoleColor.Red, "====\n");
 
@@ -82,7 +83,6 @@ class AutoMedic : FilesDeobfuscator
             Write(ConsoleColor.White, "=====================");
             Write(ConsoleColor.Red, "======\n");
         }
-
         bPrintedVersion = true;
     }
 
@@ -131,13 +131,13 @@ class AutoMedic : FilesDeobfuscator
         };
     }
 
-    public static void DoPatch(string filename, string[] arguments, string versionLowRange = "0.0.0.0", string versionHighRange = "2147483647.2147483647.2147483647.2147483647")
+    public static void DoPatch(string filename, string[] arguments, string verLow = "0.0.0.0", string verHigh = "2147483647.2147483647.2147483647.2147483647")
     {
         //print version.
         AutoMedic.version();
 
-        string filenameBackup = filename + ".bak";
         //create a backup.
+        string filenameBackup = filename + ".bak";
         if (BackupBinary(filename, filenameBackup) != 0)
             return;
 
@@ -146,36 +146,33 @@ class AutoMedic : FilesDeobfuscator
         argumentList.Add("-f");
         argumentList.Add(filenameBackup);
 
-        //create new default options for de4dot.
-        FilesDeobfuscator.Options options = new FilesDeobfuscator.Options();
-
         //populate the options using the commandline arguments passed to de4dot (code based actual on de4dot code).
+        FilesDeobfuscator.Options options = new FilesDeobfuscator.Options();
         de4dot.cui.Program.ParseCommandLine(argumentList.ToArray(), options);
-        AutoMedic autoMedic = new AutoMedic(options, filename, filenameBackup, arguments, versionLowRange, versionHighRange);
-        if(autoMedic.DoPatch() != 0)
+        if(!(new AutoMedic(options, filename, filenameBackup, arguments, verLow, verHigh)).DoPatch())
             File.Delete(filenameBackup);
 
         Console.WriteLine("Press Enter to exit...");
         Console.ReadLine();
     }
 
-    int DoPatch()
+    bool DoPatch()
     {
         int checksum = 0;
         Version binaryVersion = Try(() => AssemblyName.GetAssemblyName(filename).Version);
-        Version lowRange = Version.Parse(versionLowRange);
-        Version highRange = Version.Parse(versionHighRange);
+        Version low = Version.Parse(verLow);
+        Version high = Version.Parse(verHigh);
 
         string ret = null;
         if ((binaryVersion == null) switch {
             true => "No binaries with matching names found.",
-            _ when binaryVersion < lowRange || binaryVersion > highRange => "Binary version does not match, aborting patch.",
-            _ when Never(() => WriteLine("deobfuscating binary..."))     => "",
-            _ when !Try(() => deobfuscate())                             => "error deobfuscating, aborting file write.",
+            _ when binaryVersion < low || binaryVersion > high       => "Binary version does not match, aborting patch.",
+            _ when Never(() => WriteLine("deobfuscating binary...")) => "",
+            _ when !Try(() => deobfuscate())                         => "error deobfuscating, aborting file write.",
             _ => null
         } != null) {
             WriteLine(ret);
-            return -1;
+            return false;
         }
 
         //iterate through all classes with user code delegates.
@@ -188,7 +185,7 @@ class AutoMedic : FilesDeobfuscator
         //checksum check.
         if (checksum != AutoMedic.correctChecksum) {
             WriteLine("checksum incorrect, aborting file write.");
-            return -1;
+            return false;
         }
 
         // Save file.
@@ -196,6 +193,6 @@ class AutoMedic : FilesDeobfuscator
         options.MetadataOptions.Flags |= MetadataFlags.PreserveAll & MetadataFlags.KeepOldMaxStack;
         options.Logger = DummyLogger.NoThrowInstance;
         module.Write(filename, options); //write the file (hopefully).
-        return 0;
+        return true;
     }
 }
