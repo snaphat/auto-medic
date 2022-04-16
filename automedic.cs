@@ -106,17 +106,6 @@ class AutoMedic : FilesDeobfuscator
     }
 
     /// <summary>
-    /// Checks if a file exists.
-    /// </summary>
-    /// <param name="filename">The file to check existence for.</param>
-    /// <returns>Return true if the file is found or false otherwise.</returns>
-    static bool CheckFileExists(string filename)
-    {
-        //check if the file exists.
-        return File.Exists(filename);
-    }
-
-    /// <summary>
     /// Backs up the binary provided.
     /// </summary>
     /// <param name="from">The binary to backup. Must exist.</param>
