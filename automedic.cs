@@ -256,9 +256,6 @@ class AutoMedic : FilesDeobfuscator
         {
             //incorrect checksum. WTF.
             this.WriteLine("checksum incorrect, aborting file write.");
-
-            //delete backup.
-            this.module.Dispose();
             return -1;
         }
 
