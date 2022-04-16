@@ -1,16 +1,12 @@
 using System;
-using System.Diagnostics;
 using System.Reflection;
 using System.IO;
 using System.Collections.Generic;
 using dnlib;
 using dnlib.DotNet;
-using dnlib.DotNet.Emit;
 using dnlib.DotNet.Writer;
 using de4dot.cui;
 using de4dot.code;
-using de4dot.code.AssemblyClient;
-using de4dot.code.deobfuscators;
 
 /// <summary>
 /// Inherit FilesDeobfuscator and modify it's functionality a bit.
