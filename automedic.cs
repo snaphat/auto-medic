@@ -205,50 +205,48 @@ class AutoMedic : FilesDeobfuscator
     /// <param name="filename"></param>
     int DoPatch()
     {
-        // Check binary.
+        int checksum = 0;
         Version binaryVersion = Try(() => AssemblyName.GetAssemblyName(filename).Version);
-        string ret = null;
-        if ((ret = binaryVersion switch
-        {
-            null => "No binaries with matching names found...\n",
-            _ when binaryVersion.CompareTo(new Version(versionLowRange)) < 0 => "Binary version is lower than the minimum version required.\n",
-            _ when binaryVersion.CompareTo(new Version(versionHighRange)) > 0 => "Binary version is higher than the maximum version required.\n",
-            _ => null
-        }) != null) { Console.WriteLine(ret); return -1; }
+        Version lowRange = Version.Parse(versionLowRange);
+        Version highRange = Version.Parse(versionHighRange);
+
+        // Check for binary.
+        if (binaryVersion == null) {
+            WriteLine("No binaries with matching names found...\n");
+            return -1;
+        }
+
+        // Check binary version.
+        if (binaryVersion < lowRange || binaryVersion > highRange) {
+            WriteLine("Binary version does not match, aborting patch.\n");
+            return -1;
+        }
 
         // Deobfuscate the files.
-        this.WriteLine("deobfuscating binary...");
-
-        if (!Try(() => deobfuscate()))
-        {
-            this.WriteLine("error deobfuscating, aborting file write.");
+        WriteLine("deobfuscating binary...");
+        if (!Try(() => deobfuscate())) {
+            WriteLine("error deobfuscating, aborting file write.");
             return -1;
         }
 
-        //iterate through all classes.
-        this.WriteLine("patching binary...");
-        int checksum = 0;
-        foreach (TypeDef type in this.module.GetTypes())
+        //iterate through all classes with user code delegates.
+        WriteLine("patching binary...");
+        foreach (TypeDef type in module.GetTypes())
             foreach (MethodDef method in type.Methods)
                 foreach (closure modifier in AutoMedic.modifiers)
-                    checksum += modifier(this.module, method);
+                    checksum += modifier(module, method);
 
-        //check that the checksum is correct.
-        if (checksum == AutoMedic.correctChecksum)
-        {
-            //write the file (hopefully).
-            var options = new ModuleWriterOptions(this.module);
-            options.MetadataOptions.Flags |= MetadataFlags.PreserveAll & MetadataFlags.KeepOldMaxStack;
-            options.Logger = DummyLogger.NoThrowInstance;
-            this.module.Write(filename, options);
-        }
-        else
-        {
-            //incorrect checksum. WTF.
-            this.WriteLine("checksum incorrect, aborting file write.");
+        //checksum check.
+        if (checksum != AutoMedic.correctChecksum) {
+            WriteLine("checksum incorrect, aborting file write.");
             return -1;
         }
 
+        // Save file.
+        var options = new ModuleWriterOptions(module);
+        options.MetadataOptions.Flags |= MetadataFlags.PreserveAll & MetadataFlags.KeepOldMaxStack;
+        options.Logger = DummyLogger.NoThrowInstance;
+        module.Write(filename, options); //write the file (hopefully).
         return 0;
     }
 }
