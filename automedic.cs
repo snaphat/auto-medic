@@ -40,6 +40,10 @@ class AutoMedic : FilesDeobfuscator
         this.versionHighRange = versionHighRange;
     }
 
+    static bool Try(Action action) { try { action(); return true; } catch { return false; } }
+    static T Try<T>(Func<T> func) { try { return func(); } catch { return default(T); } }
+    static bool Always(Action action) { action(); return true; }
+
     /// <summary>
     /// Override the base method to add our own functionality.
     /// </summary>
@@ -48,7 +52,7 @@ class AutoMedic : FilesDeobfuscator
         Console.ForegroundColor = ConsoleColor.Cyan;
         Console.Write(prefix + ": ");
         Console.ResetColor();
-        Console.WriteLine(suffix + "\n");
+        Console.WriteLine(suffix);
     }
 
     /// <summary>
@@ -143,49 +147,35 @@ class AutoMedic : FilesDeobfuscator
     /// <summary>
     /// Backs up the binary provided.
     /// </summary>
-    /// <param name="from">The binary to backup.</param>
+    /// <param name="from">The binary to backup. Must exist.</param>
     /// <param name="to">The name to use for the backup.</param>
     /// <returns>Nonzero on failure and zero on success.</returns>
     static int BackupBinary(string from, string to)
     {
-        //check if the file we are trying to backup to already exists.
-        if (CheckFileExists(to) == true)
-        {
-            //check the versions of the assembly to see if the one we are going to patch is newer.
-            Version newVersion = AssemblyName.GetAssemblyName(from).Version;
-            Version oldVersion = AssemblyName.GetAssemblyName(to).Version;
-            if(newVersion.CompareTo(oldVersion) == 0) //if the versions match don't write over backup.
-            {
-                WriteLine(from, "backup binary exists already, aborting file write.");
-                return -1;
-            }
-            else
-            {
-                //Try to remove stale backup.
-                try { File.Delete(to); }
-                catch (Exception e)
-                {
-                    WriteLine(from, "failed to remove stale backup binary (" + e.Message + "), aborting execution.");
-                    return -1;
-                }
-            }
-        }
-
         WriteLine(from, "creating backup binary...");
 
-        //Try to backup the file.
-        try { File.Copy(from, to); }
-        catch (Exception e)
+        //check the versions of the assembly to see if the one we are going to patch is newer.
+        Version newVersion = AssemblyName.GetAssemblyName(from).Version;
+        Version oldVersion = Try(()=>AssemblyName.GetAssemblyName(to).Version); // Implicitly null if doesn't exist.
+        string ret = newVersion.CompareTo(oldVersion) switch
         {
-            WriteLine(from, "failed to backup binary (" + e.Message + "), aborting execution.");
-            return -1;
-        }
+            0 => "backup binary exists already, aborting file write.",
+            _ when !Try(() => File.Delete(to)) => "failed to remove stale backup binary, aborting execution.",
+            _ when !Try(() => File.Copy(from, to)) => "failed to create backup binary, aborting execution.",
+            _ => null
+        };
 
-        return 0;
+        return ret switch
+        {
+            null => 0,
+            _ when Always(() => WriteLine(from, ret))  => -1
+        };
     }
 
     public static void DoPatch(string filename, string[] arguments, String versionLowRange = null, string versionHighRange = null)
     {
+        //print version.
+        AutoMedic.version();
 
         string filenameBackup = filename + ".bak";
         //create a backup.
@@ -216,9 +206,6 @@ class AutoMedic : FilesDeobfuscator
     /// <param name="filename"></param>
     int DoPatch()
     {
-        //print version.
-        AutoMedic.version();
-
         if (!CheckFileExists(filename))
         {
             Console.WriteLine("No binaries with matching names found...\n");
