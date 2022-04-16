@@ -162,13 +162,10 @@ class AutoMedic : FilesDeobfuscator
             else
             {
                 //Try to remove stale backup.
-                try
-                {
-                    File.Delete(to);
-                }
+                try { File.Delete(to); }
                 catch (Exception e)
                 {
-                    WriteLine(from, "backup binary exists already, aborting file write.");
+                    WriteLine(from, "failed to remove stale backup binary (" + e.Message + "), aborting execution.");
                     return -1;
                 }
             }
@@ -177,13 +174,10 @@ class AutoMedic : FilesDeobfuscator
         WriteLine(from, "creating backup binary...");
 
         //Try to backup the file.
-        try
-        {
-            File.Copy(from, to);
-        }
+        try { File.Copy(from, to); }
         catch (Exception e)
         {
-            WriteLine(from, "failed to backup binary (" + e.Message + "), aborting file write.");
+            WriteLine(from, "failed to backup binary (" + e.Message + "), aborting execution.");
             return -1;
         }
 
