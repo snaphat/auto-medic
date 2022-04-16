@@ -1,5 +1,5 @@
 @echo off
-del *.exe *.bak *.config
+del *.exe *.bak *.config *.pdb
 REM setup powershell to print colors
 set echo_color=powershell -NoProfile write-host -fore Yellow
 REM Look for de4dotp.exe in the path.
