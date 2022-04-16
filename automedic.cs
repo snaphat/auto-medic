@@ -120,17 +120,16 @@ class AutoMedic : FilesDeobfuscator
     /// <returns>The module definition of the first file.</returns>
     void deobfuscate()
     {
-        //Load the files.
-        List<IObfuscatedFile> allFiles = new List<IObfuscatedFile>(this.LoadAllFiles());
-
-        //Deobfuscate the files.
-        this.DeobfuscateAllFiles(allFiles);
-
-        //Rename methods/classes/etc.
-        this.Rename(allFiles);
-
-        //Return the module definition of the first file.
-        this.module = allFiles[0].ModuleDefMD;
+        var stdOut = Console.Out;
+        try
+        {
+            Console.SetOut(new StringWriter());                                              //redirect stdout to nothing.
+            List<IObfuscatedFile> allFiles = new List<IObfuscatedFile>(this.LoadAllFiles()); //Load the files.
+            this.DeobfuscateAllFiles(allFiles);                                              //Deobfuscate the files.
+            this.Rename(allFiles);                                                           //Rename methods/classes/etc.
+            this.module = allFiles[0].ModuleDefMD;                                           //Return the module definition of the first file.
+        }
+        finally { Console.SetOut(stdOut); }                                                  // restore stdout.
     }
 
     /// <summary>
@@ -206,6 +205,7 @@ class AutoMedic : FilesDeobfuscator
     /// <param name="filename"></param>
     int DoPatch()
     {
+        // Check binary.
         Version binaryVersion = Try(() => AssemblyName.GetAssemblyName(filename).Version);
         string ret = null;
         if ((ret = binaryVersion switch
@@ -216,26 +216,17 @@ class AutoMedic : FilesDeobfuscator
             _ => null
         }) != null) { Console.WriteLine(ret); return -1; }
 
-
-        // Print information.
+        // Deobfuscate the files.
         this.WriteLine("deobfuscating binary...");
-
-        //redirect standard out to nothing so that we display nothing when running de4dot.
-        var stdOut = Console.Out;
-        Console.SetOut(new StringWriter());
 
         if (!Try(() => deobfuscate()))
         {
-            Console.SetOut(stdOut);
             this.WriteLine("error deobfuscating, aborting file write.");
             return -1;
         }
 
-        //redirect standard out back to stdout.
-        Console.SetOut(stdOut);
-        this.WriteLine("patching binary...");
-
         //iterate through all classes.
+        this.WriteLine("patching binary...");
         int checksum = 0;
         foreach (TypeDef type in this.module.GetTypes())
             foreach (MethodDef method in type.Methods)
@@ -247,7 +238,7 @@ class AutoMedic : FilesDeobfuscator
         {
             //write the file (hopefully).
             var options = new ModuleWriterOptions(this.module);
-            options.MetadataOptions.Flags |= MetadataFlags.PreserveAll && MetadataFlags.KeepOldMaxStack;
+            options.MetadataOptions.Flags |= MetadataFlags.PreserveAll & MetadataFlags.KeepOldMaxStack;
             options.Logger = DummyLogger.NoThrowInstance;
             this.module.Write(filename, options);
         }
