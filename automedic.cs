@@ -60,7 +60,7 @@ class AutoMedic : FilesDeobfuscator
 
     void WriteLine(dynamic suffix)
     {
-        WriteLine(this.filename, suffix);
+        WriteLine(filename, suffix);
     }
 
     /// <summary>
@@ -102,13 +102,13 @@ class AutoMedic : FilesDeobfuscator
         var stdOut = Console.Out;
         try
         {
-            Console.SetOut(new StringWriter());                                              //redirect stdout to nothing.
-            List<IObfuscatedFile> allFiles = new List<IObfuscatedFile>(this.LoadAllFiles()); //Load the files.
-            this.DeobfuscateAllFiles(allFiles);                                              //Deobfuscate the files.
-            this.Rename(allFiles);                                                           //Rename methods/classes/etc.
-            this.module = allFiles[0].ModuleDefMD;                                           //Return the module definition of the first file.
+            Console.SetOut(new StringWriter());                                         //redirect stdout to nothing.
+            List<IObfuscatedFile> allFiles = new List<IObfuscatedFile>(LoadAllFiles()); //Load the files.
+            DeobfuscateAllFiles(allFiles);                                              //Deobfuscate the files.
+            Rename(allFiles);                                                           //Rename methods/classes/etc.
+            module = allFiles[0].ModuleDefMD;                                           //Return the module definition of the first file.
         }
-        finally { Console.SetOut(stdOut); }                                                  // restore stdout.
+        finally { Console.SetOut(stdOut); }                                             // restore stdout.
     }
 
     /// <summary>
@@ -137,8 +137,8 @@ class AutoMedic : FilesDeobfuscator
         Version oldVersion = Try(()=>AssemblyName.GetAssemblyName(to).Version); // Implicitly null if doesn't exist.
         string ret = (newVersion == oldVersion) switch
         {
-            true => "backup binary exists already, aborting file write.",
-            _ when !Try(() => File.Delete(to)) => "failed to remove stale backup binary, aborting execution.",
+            true                                   => "backup binary exists already, aborting file write.",
+            _ when !Try(() => File.Delete(to))     => "failed to remove stale backup binary, aborting execution.",
             _ when !Try(() => File.Copy(from, to)) => "failed to create backup binary, aborting execution.",
             _ => null
         };
