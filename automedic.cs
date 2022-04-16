@@ -247,8 +247,7 @@ class AutoMedic : FilesDeobfuscator
         {
             //write the file (hopefully).
             var options = new ModuleWriterOptions(this.module);
-            options.MetadataOptions.Flags |= MetadataFlags.PreserveAll;
-            options.MetadataOptions.Flags |= MetadataFlags.KeepOldMaxStack;
+            options.MetadataOptions.Flags |= MetadataFlags.PreserveAll && MetadataFlags.KeepOldMaxStack;
             options.Logger = DummyLogger.NoThrowInstance;
             this.module.Write(filename, options);
         }
