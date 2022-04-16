@@ -27,7 +27,7 @@ class Program
         // Add modifier to the list of modifiers to call when patching.
         AutoMedic.modifiers.Add(fooModifier);
         // Patch the target assembly. Uses the same arguments as de4dot CLI.
-        AutoMedic.DoPatch("a.exe", new string[] { "--dont-rename" }, null, null);
+        AutoMedic.DoPatch("a.exe", new string[] { "--dont-rename" });
 
         return 0;
     }

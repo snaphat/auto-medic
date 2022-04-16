@@ -172,7 +172,7 @@ class AutoMedic : FilesDeobfuscator
         };
     }
 
-    public static void DoPatch(string filename, string[] arguments, String versionLowRange = null, string versionHighRange = null)
+    public static void DoPatch(string filename, string[] arguments, string versionLowRange = "0.0.0.0", string versionHighRange = "2147483647.2147483647.2147483647.2147483647")
     {
         //print version.
         AutoMedic.version();
@@ -206,30 +206,19 @@ class AutoMedic : FilesDeobfuscator
     /// <param name="filename"></param>
     int DoPatch()
     {
-        if (!CheckFileExists(filename))
+        Version binaryVersion = Try(()=>AssemblyName.GetAssemblyName(filename).Version);
+        string ret = binaryVersion switch
         {
-            Console.WriteLine("No binaries with matching names found...\n");
+            null => "No binaries with matching names found...\n",
+            _ when binaryVersion.CompareTo(new Version(versionLowRange)) < 0 => "Binary version is lower than the minimum version required.\n",
+            _ when binaryVersion.CompareTo(new Version(versionHighRange)) > 0 => "Binary version is higher than the maximum version required.\n",
+            _ => null
+        };
+
+        if(ret != null)
+        {
+            Console.WriteLine(ret);
             return -1;
-        }
-
-        if (versionLowRange != null)
-        {
-            Version binaryVersion = AssemblyName.GetAssemblyName(filename).Version;
-            if (binaryVersion.CompareTo(new Version(versionLowRange)) < 0)
-            {
-                Console.WriteLine("No binaries with matching version found...\n");
-                return -1;
-            }
-        }
-
-        if (versionHighRange != null)
-        {
-            Version binaryVersion = AssemblyName.GetAssemblyName(filename).Version;
-            if (binaryVersion.CompareTo(new Version(versionHighRange)) >= 0)
-            {
-                Console.WriteLine("No binaries with matching version found...\n");
-                return -1;
-            }
         }
 
         // Print information.
