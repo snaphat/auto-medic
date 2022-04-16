@@ -206,20 +206,16 @@ class AutoMedic : FilesDeobfuscator
     /// <param name="filename"></param>
     int DoPatch()
     {
-        Version binaryVersion = Try(()=>AssemblyName.GetAssemblyName(filename).Version);
-        string ret = binaryVersion switch
+        Version binaryVersion = Try(() => AssemblyName.GetAssemblyName(filename).Version);
+        string ret = null;
+        if (ret = binaryVersion switch
         {
             null => "No binaries with matching names found...\n",
             _ when binaryVersion.CompareTo(new Version(versionLowRange)) < 0 => "Binary version is lower than the minimum version required.\n",
             _ when binaryVersion.CompareTo(new Version(versionHighRange)) > 0 => "Binary version is higher than the maximum version required.\n",
             _ => null
-        };
+        }) { Console.WriteLine(ret); return -1; }
 
-        if(ret != null)
-        {
-            Console.WriteLine(ret);
-            return -1;
-        }
 
         // Print information.
         this.WriteLine("deobfuscating binary...");
