@@ -231,55 +231,34 @@ class AutoMedic : FilesDeobfuscator
             return -1;
         }
 
-        try
+        //redirect standard out back to stdout.
+        Console.SetOut(stdOut);
+        this.WriteLine("patching binary...");
+
+        //iterate through all classes.
+        int checksum = 0;
+        foreach (TypeDef type in this.module.GetTypes())
+            foreach (MethodDef method in type.Methods)
+                foreach (closure modifier in AutoMedic.modifiers)
+                    checksum += modifier(this.module, method);
+
+        //check that the checksum is correct.
+        if (checksum == AutoMedic.correctChecksum)
         {
-            //redirect standard out back to stdout.
-            Console.SetOut(stdOut);
-            this.WriteLine("patching binary...");
-
-            int checksum = 0;
-
-            //iterate through all classes.
-            foreach (TypeDef type in this.module.GetTypes())
-            {
-                foreach (MethodDef method in type.Methods)
-                {
-                    foreach (closure modifier in AutoMedic.modifiers)
-                    {
-                        checksum += modifier(this.module, method);
-                    }
-                }
-            }
-
-            //check that the checksum is correct.
-            if (checksum == AutoMedic.correctChecksum)
-            {
-                //write the file (hopefully).
-                var options = new ModuleWriterOptions(this.module);
-                options.MetadataOptions.Flags |= MetadataFlags.PreserveAll;
-                options.MetadataOptions.Flags |= MetadataFlags.KeepOldMaxStack;
-                options.Logger = DummyLogger.NoThrowInstance;
-                this.module.Write(filename, options);
-            }
-            else
-            {
-                //incorrect checksum. WTF.
-                this.WriteLine("checksum incorrect, aborting file write.");
-
-                //delete backup.
-                this.module.Dispose();
-                return -1;
-            }
+            //write the file (hopefully).
+            var options = new ModuleWriterOptions(this.module);
+            options.MetadataOptions.Flags |= MetadataFlags.PreserveAll;
+            options.MetadataOptions.Flags |= MetadataFlags.KeepOldMaxStack;
+            options.Logger = DummyLogger.NoThrowInstance;
+            this.module.Write(filename, options);
         }
-        catch (Exception exception)
+        else
         {
-            //Some sort of error occurred during patching.
+            //incorrect checksum. WTF.
+            this.WriteLine("checksum incorrect, aborting file write.");
 
             //delete backup.
             this.module.Dispose();
-
-            this.WriteLine("error patching binary, aborting file write.");
-            this.WriteLine(exception.Message);
             return -1;
         }
 
