@@ -208,13 +208,13 @@ class AutoMedic : FilesDeobfuscator
     {
         Version binaryVersion = Try(() => AssemblyName.GetAssemblyName(filename).Version);
         string ret = null;
-        if (ret = binaryVersion switch
+        if ((ret = binaryVersion switch
         {
             null => "No binaries with matching names found...\n",
             _ when binaryVersion.CompareTo(new Version(versionLowRange)) < 0 => "Binary version is lower than the minimum version required.\n",
             _ when binaryVersion.CompareTo(new Version(versionHighRange)) > 0 => "Binary version is higher than the maximum version required.\n",
             _ => null
-        }) { Console.WriteLine(ret); return -1; }
+        }) != null) { Console.WriteLine(ret); return -1; }
 
 
         // Print information.
@@ -224,20 +224,9 @@ class AutoMedic : FilesDeobfuscator
         var stdOut = Console.Out;
         Console.SetOut(new StringWriter());
 
-        try
+        if (!Try(() => deobfuscate()))
         {
-            //deobfuscate using de4dot
-            this.deobfuscate();
-        }
-        catch
-        {
-            //Some sort of error occurred when running de4dot.
-
-            //redirect standard out back to stdout.
             Console.SetOut(stdOut);
-
-            //delete backup.
-            File.Delete(filenameBackup);
             this.WriteLine("error deobfuscating, aborting file write.");
             return -1;
         }
