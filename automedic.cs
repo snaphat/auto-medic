@@ -43,6 +43,7 @@ class AutoMedic : FilesDeobfuscator
     static bool Try(Action action) { try { action(); return true; } catch { return false; } }
     static T Try<T>(Func<T> func) { try { return func(); } catch { return default(T); } }
     static bool Always(Action action) { action(); return true; }
+    static bool Never(Action action) { action(); return false; }
 
     static void Write(ConsoleColor color, String txt)
     {
@@ -134,9 +135,9 @@ class AutoMedic : FilesDeobfuscator
         //check the versions of the assembly to see if the one we are going to patch is newer.
         Version newVersion = AssemblyName.GetAssemblyName(from).Version;
         Version oldVersion = Try(()=>AssemblyName.GetAssemblyName(to).Version); // Implicitly null if doesn't exist.
-        string ret = newVersion.CompareTo(oldVersion) switch
+        string ret = (newVersion == oldVersion) switch
         {
-            0 => "backup binary exists already, aborting file write.",
+            true => "backup binary exists already, aborting file write.",
             _ when !Try(() => File.Delete(to)) => "failed to remove stale backup binary, aborting execution.",
             _ when !Try(() => File.Copy(from, to)) => "failed to create backup binary, aborting execution.",
             _ => null
@@ -184,22 +185,15 @@ class AutoMedic : FilesDeobfuscator
         Version lowRange = Version.Parse(versionLowRange);
         Version highRange = Version.Parse(versionHighRange);
 
-        // Check for binary.
-        if (binaryVersion == null) {
-            WriteLine("No binaries with matching names found...\n");
-            return -1;
-        }
-
-        // Check binary version.
-        if (binaryVersion < lowRange || binaryVersion > highRange) {
-            WriteLine("Binary version does not match, aborting patch.\n");
-            return -1;
-        }
-
-        // Deobfuscate the files.
-        WriteLine("deobfuscating binary...");
-        if (!Try(() => deobfuscate())) {
-            WriteLine("error deobfuscating, aborting file write.");
+        string ret = null;
+        if ((binaryVersion == null) switch {
+            true => "No binaries with matching names found.",
+            _ when binaryVersion < lowRange || binaryVersion > highRange => "Binary version does not match, aborting patch.",
+            _ when Never(() => WriteLine("deobfuscating binary..."))     => "",
+            _ when !Try(() => deobfuscate())                             => "error deobfuscating, aborting file write.",
+            _ => null
+        } != null) {
+            WriteLine(ret);
             return -1;
         }
 
