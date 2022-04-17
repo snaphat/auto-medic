@@ -1,6 +1,20 @@
 # auto-medic
 De4dot based patching toolkit for .net binary modification.
 
+# Rationale
+- Why not just use [dnlib](https://github.com/0xd4d/dnlib) for patching directly?
+  - Most assemblies are obfuscated and packed in practice.
+  - Using [dnlib](https://github.com/0xd4d/dnlib) or [Mono.Cecil](https://www.mono-project.com/docs/tools+libraries/libraries/Mono.Cecil/) directly on these will, in most cases, result in a broken Assembly that will not run.
+- What does this do differently from using [de4dot](https://github.com/mobile46/de4dot) or [dnlib](https://github.com/0xd4d/dnlib)?
+  - [dnlib](https://github.com/0xd4d/dnlib) is a library that allows for programmatically patching an assembly.
+  - [de4dot](https://github.com/mobile46/de4dot) is CLI program to deobfuscate and unpack assemblies.
+  - [auto-medic](https://github.com/snaphat/auto-medic) provides scaffolding to simplify and combines both processes so that an assembly can be deobfucated and programmatically patched in a single-step.
+- What are the tangible benefits to utilizing this [auto-medic](https://github.com/snaphat/auto-medic)?
+  - A streamlined patch process.   
+  - No need to run de4dot independently before patching.
+  - Less boiler-plate code to utilize dnlib for patching.
+  - A resultant self-contained single-executable patch-program for a target assembly.
+
 # Dependencies
 - `csc.exe` must be in your path. 
 - `ILRepack.exe` must be in your path.
@@ -39,4 +53,4 @@ De4dot based patching toolkit for .net binary modification.
   - The checksum is computed by adding all modifier return values.
   - Any .net assembly can be targeted.
 - Make sure to use `ILRepack.exe` to pack `de4dotp.exe` with your executable after compilation. Otherwise, it won't work. See `example/make.bat` for details.
-- In a real world use-cases, one might use [dnSpy](https://github.com/dnSpy/dnSpy) or [.net Reflector](https://www.red-gate.com/products/dotnet-development/reflector/) to reverse-engineer the target .net assembly, and then utilize this toolkit to create and apply patches to the assembly's bytecode.
+- In a real world use-cases, one might use [dnSpy](https://github.com/dnSpy/dnSpy) or [.net Reflector](https://www.red-gate.com/products/dotnet-development/reflector/) to reverse-engineer the target .net assembly, and then utilize this toolkit to create and apply patches to an assembly's bytecode.
