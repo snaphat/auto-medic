@@ -11,8 +11,8 @@ De4dot based patching toolkit for .net binary modification.
   - [auto-medic](https://github.com/snaphat/auto-medic) provides scaffolding to simplify and combines both processes so that an assembly can be deobfucated and programmatically patched in a single-step.
 - What are the tangible benefits to utilizing this [auto-medic](https://github.com/snaphat/auto-medic)?
   - A streamlined patch process.   
-  - No need to run de4dot independently before patching.
-  - Less boiler-plate code to utilize dnlib for patching.
+  - No need to run [de4dot](https://github.com/mobile46/de4dot) independently before patching.
+  - Less boiler-plate code to utilize [dnlib](https://github.com/0xd4d/dnlib) for patching.
   - A resultant self-contained single-executable patch-program for a target assembly.
 
 # Dependencies
