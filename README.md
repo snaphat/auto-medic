@@ -9,7 +9,7 @@ De4dot based patching toolkit for .net binary modification.
   - [dnlib](https://github.com/0xd4d/dnlib) is a library that allows for programmatically patching an assembly.
   - [de4dot](https://github.com/mobile46/de4dot) is CLI program to deobfuscate and unpack assemblies.
   - [auto-medic](https://github.com/snaphat/auto-medic) provides scaffolding to simplify and combines both processes so that an assembly can be deobfucated and programmatically patched in a single-step.
-- What are the tangible benefits to utilizing this [auto-medic](https://github.com/snaphat/auto-medic)?
+- What are the tangible benefits to utilizing [auto-medic](https://github.com/snaphat/auto-medic)?
   - A streamlined patch process.   
   - No need to run [de4dot](https://github.com/mobile46/de4dot) independently before patching.
   - Less boiler-plate code to utilize [dnlib](https://github.com/0xd4d/dnlib) for patching.
