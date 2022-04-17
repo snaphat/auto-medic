@@ -26,8 +26,8 @@ class AutoMedic : FilesDeobfuscator
 
     static bool Try(Action action) { try { action(); return true; } catch { return false; } }
     static T Try<T>(Func<T> func) { try { return func(); } catch { return default(T); } }
-    static bool Always(Action action) { action(); return true; }
-    static bool Never(Action action) { action(); return false; }
+    static bool True(Action action) { action(); return true; }
+    static bool False(Action action) { action(); return false; }
 
     AutoMedic(FilesDeobfuscator.Options options, string filename, string filenameBackup, string[] arguments, string verLow, string verHigh) : base(options)
     {
@@ -123,7 +123,7 @@ class AutoMedic : FilesDeobfuscator
 
         return ret switch {
             null => 0,
-            _ when Always(() => WriteLine(from, ret))  => -1
+            _ when True(() => WriteLine(from, ret))  => -1
         };
     }
 
@@ -163,7 +163,7 @@ class AutoMedic : FilesDeobfuscator
         if ((binaryVersion == null) switch {
             true => "No binaries with matching names found.",
             _ when binaryVersion < low || binaryVersion > high       => "Binary version does not match, aborting patch.",
-            _ when Never(() => WriteLine("deobfuscating binary...")) => "",
+            _ when False(() => WriteLine("deobfuscating binary...")) => "",
             _ when !Try(() => deobfuscate())                         => "error deobfuscating, aborting file write.",
             _ => null
         } != null) {
