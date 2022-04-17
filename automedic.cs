@@ -106,8 +106,8 @@ class AutoMedic : FilesDeobfuscator
     /// </summary>
     /// <param name="from">The binary to backup. Must exist.</param>
     /// <param name="to">The name to use for the backup.</param>
-    /// <returns>Nonzero on failure and zero on success.</returns>
-    static int BackupBinary(string from, string to)
+    /// <returns>false on failure and true on success.</returns>
+    static bool BackupBinary(string from, string to)
     {
         WriteLine(from, "creating backup binary...");
 
@@ -122,8 +122,8 @@ class AutoMedic : FilesDeobfuscator
         };
 
         return ret switch {
-            null => 0,
-            _ when True(() => WriteLine(from, ret))  => -1
+            null => true,
+            _ when True(() => WriteLine(from, ret))  => false
         };
     }
 
@@ -134,20 +134,18 @@ class AutoMedic : FilesDeobfuscator
 
         //create a backup.
         string filenameBackup = filename + ".bak";
-        if (BackupBinary(filename, filenameBackup) != 0)
-            return;
+        if (BackupBinary(filename, filenameBackup)) {
+            //file argument to run de4dot (the deobfuscator) with.
+            List<string> argumentList = new List<string>(arguments);
+            argumentList.Add("-f");
+            argumentList.Add(filenameBackup);
 
-        //file argument to run de4dot (the deobfuscator) with.
-        List<string> argumentList = new List<string>(arguments);
-        argumentList.Add("-f");
-        argumentList.Add(filenameBackup);
-
-        //populate the options using the commandline arguments passed to de4dot (code based actual on de4dot code).
-        FilesDeobfuscator.Options options = new FilesDeobfuscator.Options();
-        de4dot.cui.Program.ParseCommandLine(argumentList.ToArray(), options);
-        if(!(new AutoMedic(options, filename, filenameBackup, arguments, verLow, verHigh)).DoPatch())
-            File.Delete(filenameBackup);
-
+            //populate the options using the commandline arguments passed to de4dot (code based actual on de4dot code).
+            FilesDeobfuscator.Options options = new FilesDeobfuscator.Options();
+            de4dot.cui.Program.ParseCommandLine(argumentList.ToArray(), options);
+            if(!(new AutoMedic(options, filename, filenameBackup, arguments, verLow, verHigh)).DoPatch())
+                File.Delete(filenameBackup);
+        }
         Console.WriteLine("Press Enter to exit...");
         Console.ReadLine();
     }
